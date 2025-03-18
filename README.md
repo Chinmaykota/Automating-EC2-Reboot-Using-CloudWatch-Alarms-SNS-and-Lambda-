@@ -23,7 +23,7 @@ This guide explains how to automatically reboot an EC2 instance when a CloudWatc
    - **Enable Public IP** if needed
 4. Click **Launch**
 
-📸 *Insert screenshot of EC2 instance creation here*
+![EC2 Setup Screenshot](images/ec2 creation.jpg)
 
 ---
 
