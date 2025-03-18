@@ -34,10 +34,11 @@ This guide explains how to automatically reboot an EC2 instance when a CloudWatc
 4. Click **Create Topic**
 5. Click **Create Subscription** → Configure:
    - **Protocol**: Lambda
-   - **Endpoint**: (We will link the Lambda function later)
+   - **Endpoint**: Your Email-id and also (We will link the Lambda function later)
 6. Click **Create Subscription**
 
-📸 *Insert screenshot of SNS topic and subscription creation here*
+![SNS topic and subscription creation](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/d6f354a3ca903b2411a53846060d4ad416f40336/images/1.jpg)
+![SNS topic and subscription creation](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/d6f354a3ca903b2411a53846060d4ad416f40336/images/2.jpg)
 
 ---
 
@@ -51,7 +52,9 @@ This guide explains how to automatically reboot an EC2 instance when a CloudWatc
 5. **Set Actions** → Choose **SNS Topic** → Select `EC2-Reboot-Alerts`
 6. Click **Create Alarm**
 
-📸 *Insert screenshot of CloudWatch Alarm setup here*
+![CloudWatch Alarm setup](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/d6f354a3ca903b2411a53846060d4ad416f40336/images/6.jpg)
+
+![CloudWatch Alarm setup](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/d6f354a3ca903b2411a53846060d4ad416f40336/images/5.jpg)
 
 ---
 
@@ -62,10 +65,13 @@ This guide explains how to automatically reboot an EC2 instance when a CloudWatc
    - `AmazonEC2FullAccess`
    - `AWSLambdaBasicExecutionRole`
    - `AmazonSNSFullAccess`
+   - `AmazonCloudWatchFullAccess`
+   - `AmazonCloudWatchV2FullAccess`
+       
 4. **Role Name**: `Lambda-EC2-Reboot-Role`
 5. Click **Create Role**
 
-📸 *Insert screenshot of IAM Role creation here*
+![IAM Role for Lambda](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/d6f354a3ca903b2411a53846060d4ad416f40336/images/policies.jpg)
 
 ---
 
@@ -78,7 +84,12 @@ This guide explains how to automatically reboot an EC2 instance when a CloudWatc
    - **IAM Role**: `Lambda-EC2-Reboot-Role`
 4. Click **Create Function**
 
-📸 *Insert screenshot of Lambda function creation here*
+![Lambda Function](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/d6f354a3ca903b2411a53846060d4ad416f40336/images/3.jpg)
+
+5. After creating the Lambda function, navigate to SNS Topics, create a new subscription in ITSM EC2-Reboot-Alerts, and set the endpoint as the Lambda ARN.
+
+![SNS for Lambda](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/d6f354a3ca903b2411a53846060d4ad416f40336/images/sns%20lambda.jpg)
+
 
 ---
 
@@ -94,7 +105,8 @@ This guide explains how to automatically reboot an EC2 instance when a CloudWatc
 3. Upload `layer.zip` and click **Create**
 4. Add this layer to your Lambda function
 
-📸 *Insert screenshot of Lambda Layer addition here*
+![Lambda layer](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/36f5e3385a33c7c6113b671522d8b87056b465ff/images/lambda%20layer.jpg)
+
 
 ---
 
@@ -104,41 +116,15 @@ This guide explains how to automatically reboot an EC2 instance when a CloudWatc
 3. Choose **EC2-Reboot-Alerts** topic
 4. Click **Add**
 
-📸 *Insert screenshot of Lambda trigger configuration here*
+![Lambda Trigger](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/b63c3c075c97d1fe9d283f2655c6ba3ca3c54880/images/lambda%20sns%20trigger.jpg)
+
 
 ---
 
 ## 📝 Lambda Function Code
-```python
-import boto3
-import os
-import time
-import requests
 
-ec2 = boto3.client('ec2')
-sns = boto3.client('sns')
 
-INSTANCE_ID = os.getenv('INSTANCE_ID')
-SNS_TOPIC_ARN = os.getenv('SNS_TOPIC_ARN')
-APP_URL = os.getenv('APP_URL')
-
-def get_instance_state(instance_id):
-    response = ec2.describe_instance_status(InstanceIds=[instance_id])
-    for status in response.get('InstanceStatuses', []):
-        return status['InstanceState']['Name']
-    return "unknown"
-
-def reboot_ec2_instance(instance_id):
-    ec2.reboot_instances(InstanceIds=[instance_id])
-    return True
-
-def lambda_handler(event, context):
-    if get_instance_state(INSTANCE_ID) == "running":
-        reboot_ec2_instance(INSTANCE_ID)
-        return {'statusCode': 200, 'body': 'Reboot triggered successfully'}
-    return {'statusCode': 400, 'body': 'Instance not in running state'}
-```
-📸 *Insert screenshot of Lambda function code here*
+![Lambda function code](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/50282657d7f66a7a3b961e5362c8bfc79dbe5e6f/images/lambda%20function%20code.jpg)
 
 ---
 
@@ -152,7 +138,10 @@ def lambda_handler(event, context):
 4. Check **Lambda execution logs**
 5. Validate **EC2 reboot**
 
-📸 *Insert screenshots of testing here*
+![CloudWatch Alarm test](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/2b6351bf9390cfbb9c2ccdc4f83f2e9c5c5e785a/images/graph%20test.jpg)
+
+![SNS Mail test](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/50282657d7f66a7a3b961e5362c8bfc79dbe5e6f/images/mail.jpg)
+
 
 ---
 
@@ -161,7 +150,8 @@ def lambda_handler(event, context):
 - **EC2 State Changes**: Verify instance restarted
 - **Application Status**: Ensure Nginx is accessible
 
-📸 *Insert screenshot of verification here*
+![CloudWatch Logs](https://github.com/Chinmaykota/Automating-EC2-Reboot-Using-CloudWatch-Alarms-SNS-and-Lambda-/blob/2b6351bf9390cfbb9c2ccdc4f83f2e9c5c5e785a/images/logs.jpg)
+
 
 ---
 
@@ -172,7 +162,6 @@ To remove all resources:
 - **Delete** CloudWatch alarm
 - **Terminate** EC2 instance
 
-📸 *Insert screenshot of cleanup steps here*
 
 ---
 
